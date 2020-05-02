@@ -70,6 +70,40 @@ class Tmux
     `tmux display -pt':.{last}' '#{pane_id}'`
   end
 
+  def set_window_option(name, value)
+    `tmux set-window-option #{name} #{value}`
+  end
+
+  def set_key_table(table)
+    `tmux set-window-option key-table #{table}`
+    `tmux switch-client -T #{table}`
+  end
+
+  def disable_prefix
+    set_global_option('prefix', 'None')
+  end
+
+  def set_global_option(name, value)
+    `tmux set-option -g #{name} #{value}`
+  end
+
+  def get_global_option(name)
+    `tmux show -gqv #{name}`
+  end
+
+  def set_buffer(value)
+    # TODO shell escape?
+    `tmux set-buffer "#{value}"`
+  end
+
+  def select_pane(id)
+    `tmux select-pane -t #{id}`
+  end
+
+  def zoom_pane(id)
+    `tmux resize-pane -Z -t #{id}`
+  end
+
   private
 
   def build_json_format(fields)
