@@ -1,9 +1,6 @@
-#!/usr/bin/env ruby
-
-# env -S is not portable? --disable-gems improves performance
-
 class Hinter
-  def initialize
+  def initialize(input:)
+    @input = input
     @hints_by_text = {}
   end
 
@@ -12,15 +9,15 @@ class Hinter
     process_line(lines[-1], "")
 
     STDOUT.flush
-    write_hint_lookup!
+    #write_hint_lookup!
   end
 
   private
 
-  attr_accessor :hints, :hints_by_text
+  attr_reader :hints, :hints_by_text, :input
 
   def process_line(line, ending)
-    print line.gsub(pattern) { |m| replace(m) } + ending
+    print line.gsub(pattern) { |m| replace($~) } + ending
   end
 
   def write_hint_lookup!
@@ -36,6 +33,7 @@ class Hinter
   def pattern
     @pattern ||= begin
       fingers_patterns = ENV['FINGERS_PATTERNS']
+      #fingers_patterns = "[0-9]+"
       Regexp.new("(#{fingers_patterns})")
     end
   end
@@ -44,20 +42,22 @@ class Hinter
     return @hints if @hints
 
     # TODO error handling o ke ase
-    hints_path = File.join(ENV["FINGERS_ALPHABET_DIR"], n_matches.to_s)
+    hints_path = File.join("/home/morantron/hacking/tmux-fingers/alphabets/qwerty/", n_matches.to_s)
     @hints = File.open(hints_path).read.split(" ").reverse
   end
 
   def replace(match)
-    text = match
+    text = match[0]
 
     return text if hints.empty?
 
-    if hints_by_text.has_key?(text)
-      hint = hints_by_text[text]
+    captured_text = match && match.named_captures["capture"] || text
+
+    if hints_by_text.has_key?(captured_text)
+      hint = hints_by_text[captured_text]
     else
       hint = hints.pop
-      hints_by_text[text] = hint
+      hints_by_text[captured_text] = hint
     end
 
     output_hint = hint_format % hint
@@ -67,7 +67,7 @@ class Hinter
   end
 
   def lines
-    @lines ||= STDIN.read.split("\n")
+    @lines ||= input.split("\n")
   end
 
   def highlight_format
@@ -86,8 +86,7 @@ class Hinter
     lines.each { |line| count = count + line.scan(pattern).length }
 
     @n_matches = count
+
+    return count
   end
 end
-
-
-Hinter.new.run

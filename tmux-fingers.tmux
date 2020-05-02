@@ -21,6 +21,7 @@ else
   input_method="legacy"
 fi
 
-tmux bind-key $FINGERS_KEY run-shell "$THIS_CURRENT_DIR/scripts/tmux-fingers.sh '$input_method'"
+tmux bind-key $FINGERS_KEY run-shell "$THIS_CURRENT_DIR/scripts/tmux-fingers.sh '$input_method' '#{pane_id}' '#{window_id}'"
+tmux bind-key "F" run-shell "$THIS_CURRENT_DIR/scripts/tmux-fingers.rb init '$input_method' '#{pane_id}' '#{window_id}'"
 
 mkdir -p $THIS_CURRENT_DIR/.cache
