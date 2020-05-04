@@ -1,4 +1,4 @@
-class Hinter
+class ::Fingers::Hinter
   def initialize(input:)
     @input = input
     @hints_by_text = {}
@@ -9,25 +9,24 @@ class Hinter
     process_line(lines[-1], "")
 
     STDOUT.flush
-    #write_hint_lookup!
+
+    build_lookup_table!
+  end
+
+  def lookup(hint)
+    lookup_table[hint]
   end
 
   private
 
-  attr_reader :hints, :hints_by_text, :input
+  attr_reader :hints, :hints_by_text, :input, :lookup_table
+
+  def build_lookup_table!
+    @lookup_table = hints_by_text.invert
+  end
 
   def process_line(line, ending)
     print line.gsub(pattern) { |m| replace($~) } + ending
-  end
-
-  def write_hint_lookup!
-    fd = File.open(3)
-
-    hints_by_text.each do |text, hint|
-      fd.write("#{hint}:#{text}\n")
-    end
-
-    fd.close()
   end
 
   def pattern

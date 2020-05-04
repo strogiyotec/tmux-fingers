@@ -17,7 +17,16 @@ class Fingers::CLI
                 Fingers::Command::SendInput
               end
 
-    command_class.new(ARGV, __FILE__).run
+    begin
+      command_class.new(ARGV, __FILE__).run
+    rescue StandardError => e
+      logger.error e
+    end
+  end
+
+  # TODO global logger would be cool
+  def logger
+    @logger ||= Logger.new('/tmp/fingers.log')
   end
 end
 
