@@ -1,3 +1,6 @@
+require_relative './config'
+require_relative './huffman'
+
 class ::Fingers::Hinter
   def initialize(input:)
     @input = input
@@ -30,19 +33,13 @@ class ::Fingers::Hinter
   end
 
   def pattern
-    @pattern ||= begin
-      fingers_patterns = ENV['FINGERS_PATTERNS']
-      #fingers_patterns = "[0-9]+"
-      Regexp.new("(#{fingers_patterns})")
-    end
+    @pattern ||= Regexp.compile("(#{Fingers.config.patterns.join("|")})")
   end
 
   def hints
     return @hints if @hints
 
-    # TODO error handling o ke ase
-    hints_path = File.join("/home/morantron/hacking/tmux-fingers/alphabets/qwerty/", n_matches.to_s)
-    @hints = File.open(hints_path).read.split(" ").reverse
+    @hints = Huffman.new(alphabet: Fingers.config.alphabet, n: n_matches).generate_hints
   end
 
   def replace(match)
@@ -70,11 +67,11 @@ class ::Fingers::Hinter
   end
 
   def highlight_format
-    ENV['FINGERS_HIGHLIGHT_FORMAT']
+    Fingers.config.highlight_format
   end
 
   def hint_format
-    ENV['FINGERS_HINT_FORMAT']
+    Fingers.config.hint_format
   end
 
   def n_matches
@@ -84,6 +81,7 @@ class ::Fingers::Hinter
 
     lines.each { |line| count = count + line.scan(pattern).length }
 
+    # TODO are we taking into account duplicates here?
     @n_matches = count
 
     return count

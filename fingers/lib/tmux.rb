@@ -104,6 +104,10 @@ class Tmux
     `tmux resize-pane -Z -t #{id}`
   end
 
+  def parse_format(format)
+    `#{File.dirname(__FILE__)}/../../vendor/tmux-printer/tmux-printer '#{format}'`.chomp
+  end
+
   private
 
   def build_json_format(fields)
