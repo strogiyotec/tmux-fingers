@@ -24,6 +24,8 @@ class Tmux
       window_width
       window_height
     ])
+
+    as_json_collection(`tmux list-windows -a -F '#{format}'`)
   end
 
   def pane_by_id(id)
@@ -63,6 +65,11 @@ class Tmux
 
   # TODO this command is version dependant D:
   def resize_window(window_id, width, height)
+    `tmux resize-window -t "#{window_id}" -x #{width} -y #{height}"`
+  end
+
+  # TODO this command is version dependant D:
+  def resize_pane(window_id, width, height)
     `tmux resize-window -t "#{window_id}" -x #{width} -y #{height}"`
   end
 

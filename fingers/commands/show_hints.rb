@@ -4,10 +4,11 @@ require_relative '../lib/hinter'
 require_relative '../lib/view'
 require_relative '../lib/input_socket'
 
-
 class Fingers::Command::ShowHints < Fingers::Command::Base
   def run
-    _, input_method, current_pane_id, _current_window_id = args
+    _, _input_method, original_pane_id = args
+
+    @original_pane_id = original_pane_id
 
     @state = {
       "pane_was_zoomed": nil,
@@ -21,12 +22,16 @@ class Fingers::Command::ShowHints < Fingers::Command::Base
     }
 
     begin
-      @hinter = ::Fingers::Hinter.new(input: tmux.capture_pane(current_pane_id)[..-2])
+      Fingers.logger.debug('wtf')
+      @hinter = ::Fingers::Hinter.new(input: tmux.capture_pane(original_pane_id).chomp)
       @view = ::Fingers::View.new(hinter: @hinter)
 
       @view.render
 
-      tmux.swap_panes(ENV['TMUX_PANE'], current_pane_id)
+      set_pane_was_zoomed!
+
+      tmux.swap_panes(ENV['TMUX_PANE'], original_pane_id)
+      tmux.zoom_pane(ENV['TMUX_PANE']) if pane_was_zoomed?
 
       input_socket = InputSocket.new
 
@@ -35,22 +40,37 @@ class Fingers::Command::ShowHints < Fingers::Command::Base
       input_socket.on_input do |input|
         @view.process_input(input)
       end
-
     rescue ::Fingers::BailOut => e
+      # noop
+    ensure
       teardown
     end
 
-    tmux.set_key_table "root"
-    tmux.swap_panes(ENV['TMUX_PANE'], current_pane_id)
   end
 
   private
 
-  attr_reader :hinter, :state
+  attr_reader :hinter, :state, :original_pane_id, :view
+
+  def pane_was_zoomed?
+    @pane_was_zoomed
+  end
+
+  def set_pane_was_zoomed!
+    return @pane_was_zoomed unless @pane_was_zoomed.nil?
+
+    pane = tmux.pane_by_id(original_pane_id)
+    return false unless pane
+
+    @pane_was_zoomed = pane['window_zoomed_flag'] == '1'
+  end
 
   def teardown
     tmux.set_key_table "root"
+    tmux.swap_panes(ENV['TMUX_PANE'], original_pane_id)
+    tmux.zoom_pane(original_pane_id) if pane_was_zoomed?
 
+    view.run_action
     # TODO restore all other options
   end
 end

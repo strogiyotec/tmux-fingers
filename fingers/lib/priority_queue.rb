@@ -1,3 +1,4 @@
+# taken from https://gist.github.com/brianstorti/e20300eb2e7d62b87849
 class PriorityQueue
   attr_reader :elements
 

@@ -45,6 +45,10 @@ module Fingers
     )
       super
     end
+
+    def get_action(modifier)
+      send("#{modifier}_action".to_sym)
+    end
   end
 
   def Fingers.config

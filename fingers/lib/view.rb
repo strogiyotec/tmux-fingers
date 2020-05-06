@@ -1,3 +1,5 @@
+require_relative './action_runner'
+
 class Fingers::View
   def initialize(hinter:)
     @hinter = hinter
@@ -22,6 +24,15 @@ class Fingers::View
   def render
     hide_cursor
     hinter.run
+  end
+
+  def run_action
+    #TODO handle exit_message, no need to run action
+    Fingers::ActionRunner.new(
+      hint: state[:input],
+      modifier: state[:modifier],
+      match: state[:match]
+    ).run
   end
 
   private
@@ -58,7 +69,7 @@ class Fingers::View
     match = hinter.lookup(state[:input])
 
     if match
-      tmux.set_buffer(match)
+      state[:match] = match
       bail_out!
     end
   end

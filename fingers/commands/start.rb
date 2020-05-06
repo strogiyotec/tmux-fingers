@@ -2,11 +2,18 @@ require_relative "./base"
 
 class Fingers::Command::Start < Fingers::Command::Base
   def run
-    _, input_method, current_pane_id, current_window_id = args
+    _, input_method, original_pane_id, original_window_id = args
 
-    cmd =  "#{cli} show_hints #{input_method} #{current_pane_id} #{current_window_id}"
+    cmd = "#{cli} show_hints #{input_method} #{original_pane_id} #{original_window_id}"
 
-    # TODO check init_pane_cmd, HISTFILE=/dev/null and shit
-    tmux.create_window("[fingers]", "bash --norc --noprofile -c '#{cmd}'", 80, 24)
+    _window_id, pane_id = tmux.create_window("[fingers]", "bash --norc --noprofile -c '#{cmd}'", 80, 24)
+
+    original_pane = tmux.pane_by_id(original_pane_id)
+
+    tmux.resize_pane(
+      pane_id,
+      original_pane["pane_width"].to_i,
+      original_pane["pane_height"].to_i,
+    )
   end
 end
