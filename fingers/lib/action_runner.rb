@@ -58,6 +58,8 @@ class Fingers::ActionRunner
     if program_exists?("pbcopy")
       if program_exists?("reattach-to-user-namespace")
         "reattach-to-user-namespace"
+      else
+        "pbcopy"
       end
     elsif program_exists?("clip.exe")
       "cat | clip.exe"
