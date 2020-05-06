@@ -42,11 +42,18 @@ class Tmux
   end
 
   def capture_pane(pane_id)
-    start_line = '0'
-    end_line = '-'
+    pane = pane_by_id(pane_id)
 
 
-    `tmux capture-pane -p -t '#{pane_id}' -S '#{start_line}' -E '#{end_line}' -J`
+    if pane["pane_in_mode"] == '1'
+      start_line = -pane["scroll_position"].to_i
+      end_line = pane["pane_height"].to_i - pane["scroll_position"].to_i - 1
+
+      `tmux capture-pane -J -p -t '#{pane_id}' -S #{start_line} -E #{end_line}`
+    else
+      `tmux capture-pane -J -p -t '#{pane_id}'`
+    end
+
   end
 
   def create_window(name, cmd, pane_width, pane_height)

@@ -2,12 +2,15 @@ require_relative './config'
 require_relative './huffman'
 
 class ::Fingers::Hinter
-  def initialize(input:)
+  def initialize(input:, width:)
     @input = input
+    @width = width
     @hints_by_text = {}
   end
 
   def run
+    prepend_new_lines
+
     lines[0..-2].each { |line| process_line(line, "\n") }
     process_line(lines[-1], "")
 
@@ -22,14 +25,24 @@ class ::Fingers::Hinter
 
   private
 
-  attr_reader :hints, :hints_by_text, :input, :lookup_table
+  attr_reader :hints, :hints_by_text, :input, :lookup_table, :width
+
+  def prepend_new_lines
+    wrapped_lines_count.times { print "\n" }
+  end
+
+  def wrapped_lines_count
+    @wrapped_lines_count ||= (lines.sum { |line| [((line.length.to_f - 1.0) / width.to_f).floor, 0].max})
+  end
 
   def build_lookup_table!
     @lookup_table = hints_by_text.invert
   end
 
   def process_line(line, ending)
-    print line.gsub(pattern) { |m| replace($~) } + ending
+    output = line.gsub(pattern) { |m| replace($~) }
+
+    print(output + ending)
   end
 
   def pattern

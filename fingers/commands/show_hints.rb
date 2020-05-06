@@ -22,8 +22,10 @@ class Fingers::Command::ShowHints < Fingers::Command::Base
     }
 
     begin
-      Fingers.logger.debug('wtf')
-      @hinter = ::Fingers::Hinter.new(input: tmux.capture_pane(original_pane_id).chomp)
+      @hinter = ::Fingers::Hinter.new(
+        input: tmux.capture_pane(original_pane_id).chomp,
+        width: original_pane['pane_width'].to_i
+      )
       @view = ::Fingers::View.new(hinter: @hinter)
 
       @view.render
@@ -51,6 +53,10 @@ class Fingers::Command::ShowHints < Fingers::Command::Base
   private
 
   attr_reader :hinter, :state, :original_pane_id, :view
+
+  def original_pane
+    tmux.pane_by_id(original_pane_id)
+  end
 
   def pane_was_zoomed?
     @pane_was_zoomed
