@@ -65,7 +65,7 @@ class Huffman
       end
     end
 
-    result
+    result.sort { |a, b| a.length <=> b.length }
   end
 
   private
