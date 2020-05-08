@@ -1,5 +1,3 @@
-require_relative "./base"
-
 class Fingers::Command::Start < Fingers::Command::Base
   def run
     _, input_method, original_pane_id, original_window_id = args

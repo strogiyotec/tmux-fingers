@@ -1,6 +1,3 @@
-require_relative '../lib/config'
-require_relative '../lib/tmux'
-
 class Fingers::Command::LoadConfig < Fingers::Command::Base
   DEFAULT_PATTERNS = {
     "ip": "\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}",

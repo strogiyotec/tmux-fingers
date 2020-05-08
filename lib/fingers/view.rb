@@ -1,5 +1,3 @@
-require_relative './action_runner'
-
 class Fingers::View
   def initialize(hinter:)
     @hinter = hinter

@@ -1,9 +1,5 @@
 class Fingers::BailOut < StandardError; end
 
-require_relative '../lib/hinter'
-require_relative '../lib/view'
-require_relative '../lib/input_socket'
-
 class Fingers::Command::ShowHints < Fingers::Command::Base
   def run
     _, _input_method, original_pane_id = args

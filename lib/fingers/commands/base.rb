@@ -1,5 +1,3 @@
-require_relative "../lib/tmux"
-
 module Fingers::Command
   class Base
     def initialize(args, cli)

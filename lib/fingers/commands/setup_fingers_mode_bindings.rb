@@ -1,6 +1,3 @@
-require_relative '../lib/config'
-require_relative '../lib/tmux'
-
 class Fingers::Command::SetupFingersModeBindings < Fingers::Command::Base
   DISALLOWED_CHARS = /cimq/
 

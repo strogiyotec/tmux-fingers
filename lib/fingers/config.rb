@@ -1,6 +1,3 @@
-require_relative './tmux'
-require 'json'
-
 module Fingers
   ConfigStruct = Struct.new(
     :key,

@@ -1,15 +1,11 @@
 #!/usr/bin/env ruby
 
-require 'logger'
-require_relative "./fingers"
-require_relative "./logger"
-require_relative "./commands/start"
-require_relative "./commands/show_hints"
-require_relative "./commands/send_input"
-require_relative "./commands/load_config"
-require_relative "./commands/setup_fingers_mode_bindings"
-
 class Fingers::CLI
+  def initialize(args, cli_path)
+    @args = args
+    @cli_path = cli_path
+  end
+
   def run
     command_class = case ARGV[0]
               when "start"
@@ -27,13 +23,11 @@ class Fingers::CLI
               end
 
     begin
-      command_class.new(ARGV, "ruby --disable-gems #{__FILE__}").run
+      command_class.new(args, cli_path).run
     rescue StandardError => e
       Fingers.logger.error e
     end
   end
 
-  # TODO global logger would be cool
+  attr_reader :args, :cli_path
 end
-
-Fingers::CLI.new.run

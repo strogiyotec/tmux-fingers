@@ -1,5 +1,3 @@
-require_relative './priority_queue'
-
 class Huffman
   class HuffmanNode
     def initialize(weight:, children:)

@@ -1,5 +1,3 @@
-require_relative '../lib/tmux'
-
 class Fingers::ActionRunner
   def initialize(modifier:, match:, hint:)
     @modifier = modifier

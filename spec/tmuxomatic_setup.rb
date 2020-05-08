@@ -1,15 +1,15 @@
 require 'rspec/expectations'
-require_relative '../fingers/lib/tmux'
+require 'singleton'
+require 'json'
+require_relative '../lib/tmux'
 
 shared_context "tmuxomatic setup", :a => :b do
   let(:tmuxomatic) do
 
     Tmux.instance.socket = 'tmuxomatic'
-      Tmux.instance.config_file = '/dev/null'
+    Tmux.instance.config_file = '/dev/null'
 
     # TODO resize window to 80x24?
-    #
-    #
 
     Tmux.instance
   end

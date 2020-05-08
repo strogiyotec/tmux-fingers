@@ -1,6 +1,3 @@
-require_relative './config'
-require_relative './huffman'
-
 class ::Fingers::Hinter
   def initialize(input:, width:)
     @input = input

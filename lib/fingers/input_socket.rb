@@ -1,5 +1,3 @@
-require 'socket'
-
 class InputSocket
   SOCKET_PATH = '/tmp/fingers.sock'
 

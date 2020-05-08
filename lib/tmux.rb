@@ -1,6 +1,3 @@
-require 'json'
-require 'singleton'
-
 class Tmux
   include Singleton
 
@@ -149,7 +146,8 @@ class Tmux
   end
 
   def parse_format(format)
-    `#{File.dirname(__FILE__)}/../../vendor/tmux-printer/tmux-printer '#{format}'`.chomp
+
+    `#{File.dirname(__FILE__)}/../vendor/tmux-printer/tmux-printer '#{format}'`.chomp
   end
 
   attr_accessor :socket, :config_file
