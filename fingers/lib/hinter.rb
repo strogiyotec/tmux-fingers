@@ -70,6 +70,8 @@ class ::Fingers::Hinter
     end
 
     output_hint = hint_format % hint
+    # TODO this should be output hint without ansi escape sequences
+    # ANSI_ESCAPE_SEQUENCE_PATTERN = /\033\[([0-9]+);([0-9]+);([0-9]+)m(.+?)\033\[0m|([^\033]+)/
     output_text = highlight_format % text[hint.length..-1]
 
     return output_hint + output_text

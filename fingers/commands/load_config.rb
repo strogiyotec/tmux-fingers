@@ -57,7 +57,6 @@ class Fingers::Command::LoadConfig < Fingers::Command::Base
       when option.match(/pattern/)
         user_defined_patterns.push(value)
       when option.match(/format/)
-        puts "parsing #{value}"
         Fingers.config.send("#{option}=".to_sym, Tmux.instance.parse_format(value))
       when option == "compact_hints"
         Fingers.config.compact_hints = to_bool(value)
@@ -70,10 +69,6 @@ class Fingers::Command::LoadConfig < Fingers::Command::Base
       *enabled_default_patterns,
       *user_defined_patterns
     ])
-
-    puts Fingers.config.patterns
-
-    puts Fingers.config.keyboard_layout
 
     Fingers.config.alphabet = ALPHABET_MAP[Fingers.config.keyboard_layout.to_sym].split('')
 
@@ -93,7 +88,7 @@ class Fingers::Command::LoadConfig < Fingers::Command::Base
       `tmux run -b "#{cli} setup_fingers_mode_bindings"`
     end
 
-    `tmux bind-key "#{Fingers.config.key}" run-shell "#{cli} start '#{input_mode}' '\#{pane_id}' '\#{window_id}'"`
+    `tmux bind-key #{Fingers.config.key} run-shell "#{cli} start '#{input_mode}' '\#{pane_id}' '\#{window_id}'"`
   end
 
   def enabled_default_patterns

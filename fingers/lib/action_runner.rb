@@ -33,13 +33,12 @@ class Fingers::ActionRunner
   end
 
   def copy
-    # TODO shellescape
-    "printf \"#{match}\" | #{system_copy_command}"
+    Fingers.logger.debug(%{printf "#{match.shellescape}" | #{system_copy_command}})
+    %{printf "#{match.shellescape}" | #{system_copy_command}}
   end
 
   def open
-    # TODO run from pane working directory
-    "printf \"#{match}\" | #{system_open_command}"
+    %{printf "#{match.shellescape}" | #{system_open_command}}
   end
 
   def paste
@@ -66,7 +65,7 @@ class Fingers::ActionRunner
     elsif program_exists?("wl-copy")
       "wl-copy"
     elsif program_exists?("xclip")
-      "xclip"
+      "xclip -selection clipboard"
     elsif program_exists?("putclip")
       "putclip"
     end

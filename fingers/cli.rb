@@ -27,7 +27,7 @@ class Fingers::CLI
               end
 
     begin
-      command_class.new(ARGV, __FILE__).run
+      command_class.new(ARGV, "ruby --disable-gems #{__FILE__}").run
     rescue StandardError => e
       Fingers.logger.error e
     end

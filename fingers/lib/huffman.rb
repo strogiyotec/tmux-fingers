@@ -89,6 +89,7 @@ class Huffman
   end
 
   def arity
+    Fingers.logger.debug("alphabet #{alphabet}")
     @arity ||= alphabet.length
   end
 

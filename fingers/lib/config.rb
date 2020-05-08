@@ -1,4 +1,5 @@
 require_relative './tmux'
+require 'json'
 
 module Fingers
   ConfigStruct = Struct.new(
@@ -46,6 +47,20 @@ module Fingers
       super
     end
 
+    def to_json
+      to_h
+    end
+
+    def self.from_hash(hash)
+      instance = self.new
+
+      hash.each do |key, value|
+        instance.send("#{key}=".to_sym, value)
+      end
+
+      instance
+    end
+
     def get_action(modifier)
       send("#{modifier}_action".to_sym)
     end
@@ -64,13 +79,12 @@ module Fingers
   end
 
   def Fingers.save_config
-    puts "saving config"
     File.open('/tmp/fingers.config', 'w') do |f|
-      f.write(Marshal.dump(Fingers.config))
+      f.write(JSON.dump(Fingers.config.to_h))
     end
   end
 
   def Fingers.load_from_cache
-    Marshal.load(File.open('/tmp/fingers.config'))
+    ConfigStruct.from_hash(JSON.load(File.open('/tmp/fingers.config')))
   end
 end

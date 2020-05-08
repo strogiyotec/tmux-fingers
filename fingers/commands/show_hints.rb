@@ -44,6 +44,8 @@ class Fingers::Command::ShowHints < Fingers::Command::Base
       end
     rescue ::Fingers::BailOut => e
       # noop
+    rescue StandardError => e
+      Fingers.logger.error(e)
     ensure
       teardown
     end

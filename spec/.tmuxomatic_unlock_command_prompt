@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+tmux -L tmuxomatic wait-for -U tmuxomatic &>> /tmp/fingers.test.log
