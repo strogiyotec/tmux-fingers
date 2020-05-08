@@ -1,7 +1,4 @@
 require 'rspec/expectations'
-require 'singleton'
-require 'json'
-require_relative '../lib/tmux'
 
 shared_context "tmuxomatic setup", :a => :b do
   let(:tmuxomatic) do

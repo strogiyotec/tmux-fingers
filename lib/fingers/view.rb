@@ -1,6 +1,8 @@
 class Fingers::View
   def initialize(hinter:)
     @hinter = hinter
+    # TODO extract this to a class, share it with hinter so it can know which
+    # hints to highlight in multi mode
     @state = {
       "pane_was_zoomed": nil,
       "show_help": false,
@@ -9,7 +11,8 @@ class Fingers::View
       "input": "",
       "modifier": "",
       "selected_hints": [],
-      "selected_matches": []
+      "selected_matches": [],
+      "multi_matches": []
     }
 
   end
@@ -29,8 +32,12 @@ class Fingers::View
     Fingers::ActionRunner.new(
       hint: state[:input],
       modifier: state[:modifier],
-      match: state[:match]
+      match: state[:result]
     ).run
+  end
+
+  def result
+    state[:result]
   end
 
   private
@@ -57,6 +64,14 @@ class Fingers::View
   end
 
   def toggle_multi_mode_message
+    prev_state = state[:multi_mode]
+    state[:multi_mode] = !state[:multi_mode]
+    current_state = state[:multi_mode]
+
+    if prev_state == true && current_state == false
+      state[:result] = state[:multi_matches].join(' ')
+      bail_out!
+    end
   end
 
   # TODO better naming
@@ -67,7 +82,16 @@ class Fingers::View
     match = hinter.lookup(state[:input])
 
     if match
-      state[:match] = match
+      handle_match(match)
+    end
+  end
+
+  def handle_match(match)
+    if state[:multi_mode]
+      state[:multi_matches] << match
+      state[:input] = ''
+    else
+      state[:result] = match
       bail_out!
     end
   end
