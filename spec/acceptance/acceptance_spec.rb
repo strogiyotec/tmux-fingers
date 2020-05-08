@@ -2,7 +2,7 @@ require 'pry'
 require 'spec_helper'
 require_relative '../tmuxomatic_setup.rb'
 
-describe 'acceptance', 'basic yank' do
+describe 'acceptance' do
   include_context "tmuxomatic setup"
 
   context "basic yank" do
