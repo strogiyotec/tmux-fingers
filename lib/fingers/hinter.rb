@@ -1,8 +1,9 @@
 class ::Fingers::Hinter
-  def initialize(input:, width:)
+  def initialize(input:, width:, state:)
     @input = input
     @width = width
     @hints_by_text = {}
+    @state = state
   end
 
   def run
@@ -22,7 +23,7 @@ class ::Fingers::Hinter
 
   private
 
-  attr_reader :hints, :hints_by_text, :input, :lookup_table, :width
+  attr_reader :hints, :hints_by_text, :input, :lookup_table, :width, :state
 
   def prepend_new_lines
     wrapped_lines_count.times { print "\n" }
@@ -66,10 +67,10 @@ class ::Fingers::Hinter
       hints_by_text[captured_text] = hint
     end
 
-    output_hint = hint_format % hint
+    output_hint = hint_format_for(hint, text) % hint
     # TODO this should be output hint without ansi escape sequences
     # ANSI_ESCAPE_SEQUENCE_PATTERN = /\033\[([0-9]+);([0-9]+);([0-9]+)m(.+?)\033\[0m|([^\033]+)/
-    output_text = highlight_format % text[hint.length..-1]
+    output_text = highlight_format_for(hint, text) % text[hint.length..-1]
 
     return output_hint + output_text
   end
@@ -78,12 +79,20 @@ class ::Fingers::Hinter
     @lines ||= input.split("\n")
   end
 
-  def highlight_format
-    Fingers.config.highlight_format
+  def highlight_format_for(hint, text)
+    if state.selected_hints.include?(hint)
+      Fingers.config.selected_highlight_format
+    else
+      Fingers.config.highlight_format
+    end
   end
 
-  def hint_format
-    Fingers.config.hint_format
+  def hint_format_for(hint, text)
+    if state.selected_hints.include?(hint)
+      Fingers.config.selected_hint_format
+    else
+      Fingers.config.hint_format
+    end
   end
 
   def n_matches

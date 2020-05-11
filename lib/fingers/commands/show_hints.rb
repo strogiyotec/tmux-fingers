@@ -1,28 +1,33 @@
 class Fingers::BailOut < StandardError; end
 
 class Fingers::Command::ShowHints < Fingers::Command::Base
+  State = Struct.new(
+    :show_help,
+    :compact_mode,
+    :multi_mode,
+    :input,
+    :modifier,
+    :selected_hints,
+    :selected_matches,
+    :multi_matches,
+    :result
+  )
+
   def run
     _, _input_method, original_pane_id = args
 
     @original_pane_id = original_pane_id
 
-    @state = {
-      "pane_was_zoomed": nil,
-      "show_help": false,
-      "compact_mode": false, # read from config
-      "multi_mode": false,
-      "input": "",
-      "modifier": "",
-      "selected_hints": [],
-      "selected_matches": []
-    }
 
     begin
+      initialize_state!
+
       @hinter = ::Fingers::Hinter.new(
         input: tmux.capture_pane(original_pane_id).chomp,
-        width: original_pane['pane_width'].to_i
+        width: original_pane['pane_width'].to_i,
+        state: state
       )
-      @view = ::Fingers::View.new(hinter: @hinter)
+      @view = ::Fingers::View.new(hinter: @hinter, state: state)
 
       @view.render
 
@@ -45,12 +50,11 @@ class Fingers::Command::ShowHints < Fingers::Command::Base
     ensure
       teardown
     end
-
   end
 
   private
 
-  attr_reader :hinter, :state, :original_pane_id, :view
+  attr_reader :hinter, :state, :original_pane_id, :view, :state
 
   def original_pane
     tmux.pane_by_id(original_pane_id)
@@ -76,5 +80,18 @@ class Fingers::Command::ShowHints < Fingers::Command::Base
 
     view.run_action
     # TODO restore all other options
+  end
+
+  def initialize_state!
+    @state = State.new
+
+    @state.compact_mode = Fingers.config.compact_hints
+    @state.multi_mode = false
+    @state.show_help = false
+    @state.input = ""
+    @state.modifier = ""
+    @state.selected_hints = []
+    @state.selected_matches = []
+    @state.multi_matches = []
   end
 end
