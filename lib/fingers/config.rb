@@ -1,4 +1,6 @@
 module Fingers
+  CONFIG_PATH = Fingers::Dirs::CONFIG_PATH
+
   ConfigStruct = Struct.new(
     :key,
     :keyboard_layout,
@@ -76,12 +78,12 @@ module Fingers
   end
 
   def Fingers.save_config
-    File.open('/tmp/fingers.config', 'w') do |f|
-      f.write(JSON.dump(Fingers.config.to_h))
+    File.open(CONFIG_PATH + '.marshal', 'w') do |f|
+      f.write(Marshal.dump(Fingers.config))
     end
   end
 
   def Fingers.load_from_cache
-    ConfigStruct.from_hash(JSON.load(File.open('/tmp/fingers.config')))
+    Marshal.load(File.open(CONFIG_PATH + '.marshal'))
   end
 end

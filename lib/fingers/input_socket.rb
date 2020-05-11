@@ -1,5 +1,5 @@
 class InputSocket
-  SOCKET_PATH = '/tmp/fingers.sock'
+  SOCKET_PATH = Fingers::Dirs::SOCKET_PATH
 
   def on_input
     remove_socket_file

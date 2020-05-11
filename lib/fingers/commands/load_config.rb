@@ -32,6 +32,7 @@ class Fingers::Command::LoadConfig < Fingers::Command::Base
   }
 
   def run
+    ensure_cache_folder
     parse_tmux_conf
     setup_bindings
   end
@@ -105,5 +106,9 @@ class Fingers::Command::LoadConfig < Fingers::Command::Base
     end
 
     options
+  end
+
+  def ensure_cache_folder
+    Dir.mkdir(Fingers::Dirs::CACHE_PATH) unless File.exists?(Fingers::Dirs::CACHE)
   end
 end

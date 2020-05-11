@@ -16,6 +16,7 @@ require 'tmux'
 require 'huffman'
 require 'priority_queue'
 
+require 'fingers/dirs'
 require 'fingers/config'
 require 'fingers/commands'
 require 'fingers/commands/base'

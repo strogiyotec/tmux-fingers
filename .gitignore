@@ -4,3 +4,4 @@ node_modules/
 .gawk*
 .bundle
 vendor/bundle
+.cache
