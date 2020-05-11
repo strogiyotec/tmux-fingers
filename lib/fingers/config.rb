@@ -35,7 +35,7 @@ module Fingers
       hint_position = 'left',
       hint_position_nocompact = 'right',
       hint_format = Tmux.instance.parse_format("#[fg=yellow,bold]%s"),
-      selected_hint_format = Tmux.instance.parse_format("#[fg=yellow,bold]%s"),
+      selected_hint_format = Tmux.instance.parse_format("#[fg=green,bold]%s"),
       selected_highlight_format = Tmux.instance.parse_format("#[fg=green,nobold,dim]%s"),
       highlight_format = Tmux.instance.parse_format("#[fg=yellow,nobold,dim]%s"),
       hint_format_nocompact = Tmux.instance.parse_format("#[fg=yellow,bold][%s]"),
@@ -44,20 +44,6 @@ module Fingers
       highlight_format_nocompact = Tmux.instance.parse_format("#[fg=yellow,nobold,dim]%s")
     )
       super
-    end
-
-    def to_json
-      to_h
-    end
-
-    def self.from_hash(hash)
-      instance = self.new
-
-      hash.each do |key, value|
-        instance.send("#{key}=".to_sym, value)
-      end
-
-      instance
     end
 
     def get_action(modifier)
@@ -78,12 +64,12 @@ module Fingers
   end
 
   def Fingers.save_config
-    File.open(CONFIG_PATH + '.marshal', 'w') do |f|
+    File.open(CONFIG_PATH, 'w') do |f|
       f.write(Marshal.dump(Fingers.config))
     end
   end
 
   def Fingers.load_from_cache
-    Marshal.load(File.open(CONFIG_PATH + '.marshal'))
+    Marshal.load(File.open(CONFIG_PATH))
   end
 end
