@@ -11,7 +11,7 @@ class Fingers::View
 
   def render
     Fingers.logger.debug("rerendering")
-    puts `clear`
+    print `clear`
     hide_cursor
     hinter.run
   end
