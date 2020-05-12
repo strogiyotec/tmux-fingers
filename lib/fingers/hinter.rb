@@ -70,28 +70,62 @@ class ::Fingers::Hinter
     output_hint = hint_format_for(hint, text) % hint
     # TODO this should be output hint without ansi escape sequences
     # ANSI_ESCAPE_SEQUENCE_PATTERN = /\033\[([0-9]+);([0-9]+);([0-9]+)m(.+?)\033\[0m|([^\033]+)/
-    output_text = highlight_format_for(hint, text) % text[hint.length..-1]
+    output_highlight = highlight_format_for(hint, text) % chop_highlight(hint, text)
 
-    return output_hint + output_text
+    return combine_formats(output_hint, output_highlight)
   end
 
   def lines
     @lines ||= input.split("\n")
   end
 
+  def chop_highlight(hint, text)
+    return text unless Fingers.config.compact_hints
+
+    if Fingers.config.hint_position == 'left'
+      text[hint.length..-1]
+    else
+      text[0..-(hint.length + 1)]
+    end
+  end
+
   def highlight_format_for(hint, text)
     if state.selected_hints.include?(hint)
-      Fingers.config.selected_highlight_format
+      if Fingers.config.compact_hints
+        Fingers.config.selected_highlight_format
+      else
+        Fingers.config.selected_highlight_format_nocompact
+      end
     else
-      Fingers.config.highlight_format
+      if Fingers.config.compact_hints
+        Fingers.config.highlight_format
+      else
+        Fingers.config.highlight_format_nocompact
+      end
     end
   end
 
   def hint_format_for(hint, text)
     if state.selected_hints.include?(hint)
-      Fingers.config.selected_hint_format
+      if Fingers.config.compact_hints
+        Fingers.config.selected_hint_format
+      else
+        Fingers.config.selected_hint_format_nocompact
+      end
     else
-      Fingers.config.hint_format
+      if Fingers.config.compact_hints
+        Fingers.config.hint_format
+      else
+        Fingers.config.hint_format_nocompact
+      end
+    end
+  end
+
+  def combine_formats(hint, highlight)
+    if Fingers.config.hint_position == 'left'
+      hint + highlight
+    else
+      highlight + hint
     end
   end
 
