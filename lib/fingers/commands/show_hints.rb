@@ -10,7 +10,8 @@ class Fingers::Command::ShowHints < Fingers::Command::Base
     :selected_hints,
     :selected_matches,
     :multi_matches,
-    :result
+    :result,
+    :exiting
   )
 
   def run
@@ -21,6 +22,7 @@ class Fingers::Command::ShowHints < Fingers::Command::Base
 
     begin
       initialize_state!
+      store_options
 
       @hinter = ::Fingers::Hinter.new(
         input: tmux.capture_pane(original_pane_id).chomp,
@@ -38,6 +40,7 @@ class Fingers::Command::ShowHints < Fingers::Command::Base
 
       input_socket = InputSocket.new
 
+      tmux.disable_prefix
       tmux.set_key_table "fingers"
 
       input_socket.on_input do |input|
@@ -55,6 +58,28 @@ class Fingers::Command::ShowHints < Fingers::Command::Base
   private
 
   attr_reader :hinter, :state, :original_pane_id, :view, :state
+
+  def store_options
+    @original_options = {}
+
+    options_to_preserve.each do |option|
+      value = tmux.get_global_option(option)
+      @original_options[option] = value
+      Fingers.logger.debug("[store] Setting #{option} to #{value}")
+    end
+  end
+
+  def restore_options
+    Fingers.logger.debug("restoring options or at least trying")
+    @original_options.each do |option, value|
+      Fingers.logger.debug("[restore] Setting #{option} to #{value}")
+      tmux.set_global_option(option, value)
+    end
+  end
+
+  def options_to_preserve
+    %w(prefix)
+  end
 
   def original_pane
     tmux.pane_by_id(original_pane_id)
@@ -78,8 +103,8 @@ class Fingers::Command::ShowHints < Fingers::Command::Base
     tmux.swap_panes(ENV['TMUX_PANE'], original_pane_id)
     tmux.zoom_pane(original_pane_id) if pane_was_zoomed?
 
-    view.run_action
-    # TODO restore all other options
+    restore_options
+    view.run_action unless state.exiting
   end
 
   def initialize_state!
@@ -93,5 +118,6 @@ class Fingers::Command::ShowHints < Fingers::Command::Base
     @state.selected_hints = []
     @state.selected_matches = []
     @state.multi_matches = []
+    @state.exiting = false
   end
 end

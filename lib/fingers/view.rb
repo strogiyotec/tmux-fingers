@@ -38,6 +38,7 @@ class Fingers::View
   end
 
   def exit_message
+    state.exiting = true
     bail_out!
   end
 

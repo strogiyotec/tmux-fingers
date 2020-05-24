@@ -103,20 +103,26 @@ describe 'acceptance' do
 
   context "ctrl action" do
     let(:config_name) { 'ctrl-action' }
+    let(:prefix) { 'C-b' }
+    let(:hint_to_press) { 'C-y' }
 
     before do
       `rm -rf /tmp/fingers-stub-output`
       exec('cat test/fixtures/grep-output')
 
       invoke_fingers
-      send_keys("C-y")
+      send_keys(hint_to_press)
 
       exec('cat /tmp/fingers-stub-output')
-
-      sleep 10
     end
 
     it { should contain_content("action-stub => scripts/hints.sh") }
+
+    context "and is sending prefix" do
+      let(:hint_to_press) { prefix }
+
+      it { should contain_content("action-stub => scripts/debug.sh") }
+    end
 
     after do
       `rm -rf /tmp/fingers-stub-output`
@@ -141,5 +147,4 @@ describe 'acceptance' do
 
     it { should contain_content(%{yanked text is "laser" 'laser'}) }
   end
-
 end

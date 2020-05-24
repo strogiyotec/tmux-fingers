@@ -11,7 +11,6 @@ class Fingers::ActionRunner
 
     return unless final_shell_command
 
-
     `tmux run-shell -b "#{final_shell_command}"`
   end
 
@@ -20,8 +19,6 @@ class Fingers::ActionRunner
   attr_accessor :match, :modifier, :hint
 
   def final_shell_command
-    Fingers.logger.debug("running #{action}")
-
     @final_shell_command ||= case action
                              when ':copy:'
                                copy

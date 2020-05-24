@@ -15,7 +15,8 @@ describe Fingers::View do
 
   let(:view) {
     described_class.new(
-      hinter: hinter
+      hinter: hinter,
+      state: OpenStruct.new
     )
   }
 

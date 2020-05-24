@@ -122,6 +122,7 @@ class Tmux
 
   def disable_prefix
     set_global_option('prefix', 'None')
+    set_global_option('prefix2', 'None')
   end
 
   def set_global_option(name, value)
@@ -129,11 +130,11 @@ class Tmux
   end
 
   def get_global_option(name)
-    `#{tmux} show -gqv #{name}`
+    `#{tmux} show -gqv #{name}`.chomp
   end
 
   def set_buffer(value)
-    Fingers.logger.debug(%{#{tmux} set-buffer "#{value.shellescape}"})
+    return unless value
     `#{tmux} set-buffer "#{value.shellescape}"`
   end
 
