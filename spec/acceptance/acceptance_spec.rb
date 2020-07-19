@@ -147,4 +147,6 @@ describe 'acceptance' do
 
     it { should contain_content(%{yanked text is "laser" 'laser'}) }
   end
+
+  # TODO multi match spec
 end

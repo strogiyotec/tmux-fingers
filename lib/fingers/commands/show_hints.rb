@@ -19,7 +19,6 @@ class Fingers::Command::ShowHints < Fingers::Command::Base
 
     @original_pane_id = original_pane_id
 
-
     begin
       initialize_state!
       store_options
@@ -46,6 +45,7 @@ class Fingers::Command::ShowHints < Fingers::Command::Base
       input_socket.on_input do |input|
         @view.process_input(input)
       end
+    # TODO exceptions for flow control, not cool
     rescue ::Fingers::BailOut => e
       # noop
     rescue StandardError => e

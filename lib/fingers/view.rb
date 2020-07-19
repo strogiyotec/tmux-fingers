@@ -10,7 +10,7 @@ class Fingers::View
   end
 
   def render
-    Fingers.logger.debug("rerendering")
+    # TODO default printer?
     print `clear`
     hide_cursor
     hinter.run
@@ -48,6 +48,8 @@ class Fingers::View
   end
 
   def toggle_compact_mode_message
+    state.compact_mode = !state.compact_mode
+    render
   end
 
   def noop_message

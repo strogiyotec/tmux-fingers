@@ -1,12 +1,28 @@
 class ::Fingers::Hinter
-  def initialize(input:, width:, state:)
+  DEFAULT_FORMATTER_BUILDER = ->(compact) { ::Fingers::MatchFormatter.for(compact: compact) }
+
+  def initialize(
+    input:,
+    width:,
+    state:,
+    patterns: Fingers.config.patterns,
+    alphabet: Fingers.config.alphabet,
+    output: $stdout,
+    formatter_builder: DEFAULT_FORMATTER_BUILDER
+  )
     @input = input
     @width = width
     @hints_by_text = {}
     @state = state
+    @printer = nil
+    @output = output
+    @formatter_builder = formatter_builder
+    @patterns = patterns
+    @alphabet = alphabet
   end
 
   def run
+    set_formatter!
     prepend_new_lines
 
     lines[0..-2].each { |line| process_line(line, "\n") }
@@ -23,10 +39,24 @@ class ::Fingers::Hinter
 
   private
 
-  attr_reader :hints, :hints_by_text, :input, :lookup_table, :width, :state
+  attr_reader :hints,
+              :hints_by_text,
+              :input,
+              :lookup_table,
+              :width,
+              :state,
+              :formatter,
+              :output,
+              :formatter_builder,
+              :patterns,
+              :alphabet
+
+  def set_formatter!
+    @formatter = formatter_builder.call(state.compact_mode)
+  end
 
   def prepend_new_lines
-    wrapped_lines_count.times { print "\n" }
+    wrapped_lines_count.times { output.print "\n" }
   end
 
   def wrapped_lines_count
@@ -38,19 +68,19 @@ class ::Fingers::Hinter
   end
 
   def process_line(line, ending)
-    output = line.gsub(pattern) { |m| replace($~) }
+    result = line.gsub(pattern) { |m| replace($~) }
 
-    print(output + ending)
+    output.print(result + ending)
   end
 
   def pattern
-    @pattern ||= Regexp.compile("(#{Fingers.config.patterns.join("|")})")
+    @pattern ||= Regexp.compile("(#{patterns.join("|")})")
   end
 
   def hints
     return @hints if @hints
 
-    @hints = Huffman.new(alphabet: Fingers.config.alphabet, n: n_matches).generate_hints
+    @hints = Huffman.new(alphabet: alphabet, n: n_matches).generate_hints
   end
 
   def replace(match)
@@ -67,66 +97,16 @@ class ::Fingers::Hinter
       hints_by_text[captured_text] = hint
     end
 
-    output_hint = hint_format_for(hint, text) % hint
     # TODO this should be output hint without ansi escape sequences
-    # ANSI_ESCAPE_SEQUENCE_PATTERN = /\033\[([0-9]+);([0-9]+);([0-9]+)m(.+?)\033\[0m|([^\033]+)/
-    output_highlight = highlight_format_for(hint, text) % chop_highlight(hint, text)
-
-    return combine_formats(output_hint, output_highlight)
+    return formatter.format(
+      hint: hint,
+      highlight: text,
+      selected: state.selected_hints.include?(hint)
+    )
   end
 
   def lines
     @lines ||= input.split("\n")
-  end
-
-  def chop_highlight(hint, text)
-    return text unless Fingers.config.compact_hints
-
-    if Fingers.config.hint_position == 'left'
-      text[hint.length..-1]
-    else
-      text[0..-(hint.length + 1)]
-    end
-  end
-
-  def highlight_format_for(hint, text)
-    if state.selected_hints.include?(hint)
-      if Fingers.config.compact_hints
-        Fingers.config.selected_highlight_format
-      else
-        Fingers.config.selected_highlight_format_nocompact
-      end
-    else
-      if Fingers.config.compact_hints
-        Fingers.config.highlight_format
-      else
-        Fingers.config.highlight_format_nocompact
-      end
-    end
-  end
-
-  def hint_format_for(hint, text)
-    if state.selected_hints.include?(hint)
-      if Fingers.config.compact_hints
-        Fingers.config.selected_hint_format
-      else
-        Fingers.config.selected_hint_format_nocompact
-      end
-    else
-      if Fingers.config.compact_hints
-        Fingers.config.hint_format
-      else
-        Fingers.config.hint_format_nocompact
-      end
-    end
-  end
-
-  def combine_formats(hint, highlight)
-    if Fingers.config.hint_position == 'left'
-      hint + highlight
-    else
-      highlight + hint
-    end
   end
 
   def n_matches
