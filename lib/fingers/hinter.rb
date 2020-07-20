@@ -90,6 +90,15 @@ class ::Fingers::Hinter
 
     captured_text = match && match.named_captures["capture"] || text
 
+    if match.named_captures["capture"]
+      match_start, match_end = match.offset(0)
+      capture_start, capture_end = match.offset(:capture)
+
+      capture_offset = [capture_start - match_start, capture_end - capture_start]
+    else
+      capture_offset = nil
+    end
+
     if hints_by_text.has_key?(captured_text)
       hint = hints_by_text[captured_text]
     else
@@ -97,11 +106,14 @@ class ::Fingers::Hinter
       hints_by_text[captured_text] = hint
     end
 
+
+
     # TODO this should be output hint without ansi escape sequences
     return formatter.format(
       hint: hint,
       highlight: text,
-      selected: state.selected_hints.include?(hint)
+      selected: state.selected_hints.include?(hint),
+      offset: capture_offset
     )
   end
 

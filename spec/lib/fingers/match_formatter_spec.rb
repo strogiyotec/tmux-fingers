@@ -8,6 +8,7 @@ describe Fingers::MatchFormatter do
   let(:selected_highlight_format) { '{%s}' }
   let(:compact) { false }
   let(:selected) { false }
+  let(:offset) { nil }
 
   let(:hint) { 'a' }
   let(:highlight) { 'yolo' }
@@ -24,7 +25,7 @@ describe Fingers::MatchFormatter do
   }
 
   let(:result) {
-    formatter.format(hint: hint, highlight: highlight, selected: selected)
+    formatter.format(hint: hint, highlight: highlight, selected: selected, offset: offset)
   }
 
   context 'when hint position' do
@@ -73,6 +74,18 @@ describe Fingers::MatchFormatter do
 
     it 'selects the correct format' do
       expect(result).to eq('{a}{yolo}')
+    end
+  end
+
+  context 'when offset is provided' do
+    let(:compact) { false }
+    let(:offset) { [1, 5] }
+    let(:highlight) { 'yoloyoloyolo' }
+    let(:hint) { 'a' }
+    let(:highlight_format) { '|%s|' }
+
+    it 'only highlights at specified offset' do
+      expect(result).to eq("y[a]|oloyo|loyolo")
     end
   end
 end
