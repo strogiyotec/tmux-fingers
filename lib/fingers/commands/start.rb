@@ -6,12 +6,12 @@ class Fingers::Command::Start < Fingers::Command::Base
 
     # TODO why can't we create window with size directly?
 
-    _window_id, pane_id = tmux.create_window("[fingers]", cmd, 80, 24)
+    window_id, pane_id = tmux.create_window("[fingers]", cmd, 80, 24)
 
     original_pane = tmux.pane_by_id(original_pane_id)
 
-    tmux.resize_pane(
-      pane_id,
+    tmux.resize_window(
+      window_id,
       original_pane["pane_width"].to_i,
       original_pane["pane_height"].to_i,
     )

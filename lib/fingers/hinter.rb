@@ -14,7 +14,6 @@ class ::Fingers::Hinter
     @width = width
     @hints_by_text = {}
     @state = state
-    @printer = nil
     @output = output
     @formatter_builder = formatter_builder
     @patterns = patterns
@@ -23,7 +22,6 @@ class ::Fingers::Hinter
 
   def run
     set_formatter!
-    prepend_new_lines
 
     lines[0..-2].each { |line| process_line(line, "\n") }
     process_line(lines[-1], "")
@@ -55,21 +53,12 @@ class ::Fingers::Hinter
     @formatter = formatter_builder.call(state.compact_mode)
   end
 
-  def prepend_new_lines
-    wrapped_lines_count.times { output.print "\n" }
-  end
-
-  def wrapped_lines_count
-    @wrapped_lines_count ||= (lines.sum { |line| [((line.length.to_f - 1.0) / width.to_f).floor, 0].max})
-  end
-
   def build_lookup_table!
     @lookup_table = hints_by_text.invert
   end
 
   def process_line(line, ending)
     result = line.gsub(pattern) { |m| replace($~) }
-
     output.print(result + ending)
   end
 
