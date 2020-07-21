@@ -94,7 +94,7 @@ class Tmux
   end
 
   def swap_panes(src_id, dst_id)
-    `#{tmux} swap-pane -s '#{src_id}' -t '#{dst_id}'`
+    `#{tmux} swap-pane -d -Z -s '#{src_id}' -t '#{dst_id}'`
   end
 
   # TODO this command is version dependant D:

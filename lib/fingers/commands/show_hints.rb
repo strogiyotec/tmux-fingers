@@ -32,10 +32,7 @@ class Fingers::Command::ShowHints < Fingers::Command::Base
 
       @view.render
 
-      set_pane_was_zoomed!
-
       tmux.swap_panes(ENV['TMUX_PANE'], original_pane_id)
-      tmux.zoom_pane(ENV['TMUX_PANE']) if pane_was_zoomed?
 
       input_socket = InputSocket.new
 
@@ -89,19 +86,9 @@ class Fingers::Command::ShowHints < Fingers::Command::Base
     @pane_was_zoomed
   end
 
-  def set_pane_was_zoomed!
-    return @pane_was_zoomed unless @pane_was_zoomed.nil?
-
-    pane = tmux.pane_by_id(original_pane_id)
-    return false unless pane
-
-    @pane_was_zoomed = pane['window_zoomed_flag'] == '1'
-  end
-
   def teardown
     tmux.set_key_table "root"
     tmux.swap_panes(ENV['TMUX_PANE'], original_pane_id)
-    tmux.zoom_pane(original_pane_id) if pane_was_zoomed?
 
     restore_options
     view.run_action unless state.exiting
