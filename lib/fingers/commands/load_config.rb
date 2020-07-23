@@ -4,7 +4,7 @@ class Fingers::Command::LoadConfig < Fingers::Command::Base
     "uuid": "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
     "sha": "[0-9a-f]{7,128}",
     "digit": "[0-9]{4,}",
-    "url": "((https?://|git@|git://|ssh://|ftp://|file:///)[^ ]+)",
+    "url": "((https?://|git@|git://|ssh://|ftp://|file:///)[^ ()'\"]+)",
     "path": "(([.\\w\\-~\\$@]+)?(/[.\\w\\-@]+)+/?)",
   }
 
