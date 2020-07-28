@@ -1,35 +1,35 @@
 class Fingers::Command::LoadConfig < Fingers::Command::Base
   DEFAULT_PATTERNS = {
-    "ip": "\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}",
-    "uuid": "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
-    "sha": "[0-9a-f]{7,128}",
-    "digit": "[0-9]{4,}",
+    "ip": '\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}',
+    "uuid": '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}',
+    "sha": '[0-9a-f]{7,128}',
+    "digit": '[0-9]{4,}',
     "url": "((https?://|git@|git://|ssh://|ftp://|file:///)[^ ()'\"]+)",
-    "path": "(([.\\w\\-~\\$@]+)?(/[.\\w\\-@]+)+/?)",
-  }
+    "path": '(([.\\w\\-~\\$@]+)?(/[.\\w\\-@]+)+/?)'
+  }.freeze
 
   ALPHABET_MAP = {
-    "qwerty": "asdfqwerzxcvjklmiuopghtybn",
-    "qwerty-homerow": "asdfjklgh",
-    "qwerty-left-hand": "asdfqwerzcxv",
-    "qwerty-right-hand": "jkluiopmyhn",
-    "azerty": "qsdfazerwxcvjklmuiopghtybn",
-    "azerty-homerow": "qsdfjkmgh",
-    "azerty-left-hand": "qsdfazerwxcv",
-    "azerty-right-hand": "jklmuiophyn",
-    "qwertz": "asdfqweryxcvjkluiopmghtzbn",
-    "qwertz-homerow": "asdfghjkl",
-    "qwertz-left-hand": "asdfqweryxcv",
-    "qwertz-right-hand": "jkluiopmhzn",
-    "dvorak": "aoeuqjkxpyhtnsgcrlmwvzfidb",
-    "dvorak-homerow": "aoeuhtnsid",
-    "dvorak-left-hand": "aoeupqjkyix",
-    "dvorak-right-hand": "htnsgcrlmwvz",
-    "colemak": "arstqwfpzxcvneioluymdhgjbk",
-    "colemak-homerow": "arstneiodh",
-    "colemak-left-hand": "arstqwfpzxcv",
-    "colemak-right-hand": "neioluymjhk"
-  }
+    "qwerty": 'asdfqwerzxcvjklmiuopghtybn',
+    "qwerty-homerow": 'asdfjklgh',
+    "qwerty-left-hand": 'asdfqwerzcxv',
+    "qwerty-right-hand": 'jkluiopmyhn',
+    "azerty": 'qsdfazerwxcvjklmuiopghtybn',
+    "azerty-homerow": 'qsdfjkmgh',
+    "azerty-left-hand": 'qsdfazerwxcv',
+    "azerty-right-hand": 'jklmuiophyn',
+    "qwertz": 'asdfqweryxcvjkluiopmghtzbn',
+    "qwertz-homerow": 'asdfghjkl',
+    "qwertz-left-hand": 'asdfqweryxcv',
+    "qwertz-right-hand": 'jkluiopmhzn',
+    "dvorak": 'aoeuqjkxpyhtnsgcrlmwvzfidb',
+    "dvorak-homerow": 'aoeuhtnsid',
+    "dvorak-left-hand": 'aoeupqjkyix',
+    "dvorak-right-hand": 'htnsgcrlmwvz',
+    "colemak": 'arstqwfpzxcvneioluymdhgjbk',
+    "colemak-homerow": 'arstneiodh',
+    "colemak-left-hand": 'arstqwfpzxcv',
+    "colemak-right-hand": 'neioluymjhk'
+  }.freeze
 
   def run
     ensure_cache_folder
@@ -51,12 +51,11 @@ class Fingers::Command::LoadConfig < Fingers::Command::Base
 
       option = option.tr('-', '_')
 
-      case
-      when option.match(/pattern/)
+      if option.match(/pattern/)
         user_defined_patterns.push(value)
-      when option.match(/format/)
+      elsif option.match(/format/)
         Fingers.config.send("#{option}=".to_sym, Tmux.instance.parse_format(value))
-      when option == "compact_hints"
+      elsif option == 'compact_hints'
         Fingers.config.compact_hints = to_bool(value)
       else
         Fingers.config.send("#{option}=".to_sym, value)
@@ -64,9 +63,9 @@ class Fingers::Command::LoadConfig < Fingers::Command::Base
     end
 
     Fingers.config.patterns = clean_up_patterns([
-      *enabled_default_patterns,
-      *user_defined_patterns
-    ])
+                                                  *enabled_default_patterns,
+                                                  *user_defined_patterns
+                                                ])
 
     Fingers.config.alphabet = ALPHABET_MAP[Fingers.config.keyboard_layout.to_sym].split('')
 
@@ -80,13 +79,12 @@ class Fingers::Command::LoadConfig < Fingers::Command::Base
   end
 
   def setup_bindings
-    input_mode = "fingers-mode"
+    input_mode = 'fingers-mode'
 
-    if input_mode == "fingers-mode"
-      `tmux run -b "#{cli} setup_fingers_mode_bindings"`
-    end
+    `tmux run -b "#{cli} setup_fingers_mode_bindings"` if input_mode == 'fingers-mode'
 
-    `tmux bind-key #{Fingers.config.key} run-shell "#{cli} start '#{input_mode}' '\#{pane_id}' '\#{window_id}'"`
+    # TODO: will this work if shell is not bash?
+    `tmux bind-key #{Fingers.config.key} run-shell -b "echo \\"benchmark:start[\\$(date +%s)] \\$((\\$(date +%s%N)/1000000))\\" >> /home/morantron/hacking/tmux-fingers/fingers.log; ruby --disable-gems #{cli} start '#{input_mode}' '\#{pane_id}' '\#{window_id}' \\$(date +%s) &> /dev/null"`
   end
 
   def enabled_default_patterns
@@ -94,12 +92,13 @@ class Fingers::Command::LoadConfig < Fingers::Command::Base
   end
 
   def to_bool(input)
-    input == "1"
+    input == '1'
   end
 
   def shell_safe_options
-    finger_option_names = `tmux show-options -g | grep ^@fingers`.split("\n").map { |line| line.split(" ")[0] }
+    finger_option_names = `tmux show-options -g | grep ^@fingers`.split("\n").map { |line| line.split(' ')[0] }
 
+    # TODO: add allowed fingers-options
     options = {}
     finger_option_names.each do |option|
       options[option.gsub(/^@fingers-/, '')] = `tmux show-option -gv #{option}`.chomp
@@ -109,6 +108,6 @@ class Fingers::Command::LoadConfig < Fingers::Command::Base
   end
 
   def ensure_cache_folder
-    Dir.mkdir(Fingers::Dirs::CACHE_PATH) unless File.exists?(Fingers::Dirs::CACHE)
+    Dir.mkdir(Fingers::Dirs::CACHE_PATH) unless File.exist?(Fingers::Dirs::CACHE)
   end
 end

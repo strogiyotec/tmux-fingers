@@ -1,23 +1,24 @@
 class Fingers::View
-  def initialize(hinter:, state:)
+  def initialize(hinter:, state:, output:)
     @hinter = hinter
     @state = state
+    @output = output
   end
 
   def process_input(input)
-    command, *args = input.gsub(/-/, '_').split(":")
+    command, *args = input.gsub(/-/, '_').split(':')
     send("#{command}_message".to_sym, *args)
   end
 
   def render
-    # TODO default printer?
-    print `clear`
+    # TODO: default printer?
+    output.print `clear`
     hide_cursor
     hinter.run
   end
 
   def run_action
-    #TODO handle exit_message, no need to run action
+    # TODO: handle exit_message, no need to run action
     Fingers::ActionRunner.new(
       hint: state.input,
       modifier: state.modifier,
@@ -31,10 +32,10 @@ class Fingers::View
 
   private
 
-  attr_reader :hinter, :state
+  attr_reader :hinter, :state, :output
 
   def hide_cursor
-    print `tput civis`
+    output.print `tput civis`
   end
 
   def exit_message
@@ -43,8 +44,8 @@ class Fingers::View
   end
 
   def toggle_help_message
-    puts `clear`
-    puts "Help message"
+    output.print `clear`
+    output.print 'Help message'
   end
 
   def toggle_compact_mode_message
@@ -52,8 +53,7 @@ class Fingers::View
     render
   end
 
-  def noop_message
-  end
+  def noop_message; end
 
   def toggle_multi_mode_message
     prev_state = state.multi_mode
@@ -66,16 +66,14 @@ class Fingers::View
     end
   end
 
-  # TODO better naming
+  # TODO: better naming
   def hint_message(hint, modifier)
     state.input += hint
     state.modifier = modifier
 
     match = hinter.lookup(state.input)
 
-    if match
-      handle_match(match)
-    end
+    handle_match(match) if match
   end
 
   def handle_match(match)

@@ -13,20 +13,20 @@ describe Fingers::MatchFormatter do
   let(:hint) { 'a' }
   let(:highlight) { 'yolo' }
 
-  let(:formatter) {
+  let(:formatter) do
     described_class.new(
       highlight_format: highlight_format,
       hint_format: hint_format,
       selected_highlight_format: selected_highlight_format,
       selected_hint_format: selected_hint_format,
       hint_position: hint_position,
-      compact: compact,
+      compact: compact
     )
-  }
+  end
 
-  let(:result) {
+  let(:result) do
     formatter.format(hint: hint, highlight: highlight, selected: selected, offset: offset)
-  }
+  end
 
   context 'when hint position' do
     context 'is set to left' do
@@ -66,7 +66,7 @@ describe Fingers::MatchFormatter do
       end
     end
 
-    # TODO what if hint is longer than highlight? hehehe
+    # TODO: what if hint is longer than highlight? hehehe
   end
 
   context 'when a hint is selected' do
@@ -85,8 +85,7 @@ describe Fingers::MatchFormatter do
     let(:highlight_format) { '|%s|' }
 
     it 'only highlights at specified offset' do
-      expect(result).to eq("y[a]|oloyo|loyolo")
+      expect(result).to eq('y[a]|oloyo|loyolo')
     end
   end
 end
-

@@ -1,12 +1,11 @@
 require 'rspec/expectations'
 
-shared_context "tmuxomatic setup", :a => :b do
+shared_context 'tmuxomatic setup', a: :b do
   let(:tmuxomatic) do
-
     Tmux.instance.socket = 'tmuxomatic'
     Tmux.instance.config_file = '/dev/null'
 
-    # TODO resize window to 80x24?
+    # TODO: resize window to 80x24?
 
     Tmux.instance
   end
@@ -15,14 +14,14 @@ shared_context "tmuxomatic setup", :a => :b do
   let(:prefix) { 'C-a' }
   let(:fingers_key) { 'F' }
 
-  let(:tmuxomatic_pane_id) { tmuxomatic.panes.first["pane_id"] }
-  let(:tmuxomatic_window_id) { tmuxomatic.panes.first["window_id"] }
+  let(:tmuxomatic_pane_id) { tmuxomatic.panes.first['pane_id'] }
+  let(:tmuxomatic_window_id) { tmuxomatic.panes.first['window_id'] }
 
   def send_keys(keys)
     fork do
       tmuxomatic.send_keys(tmuxomatic_pane_id, keys)
     end
-    # TODO key is received, is it even possible?
+    # TODO: key is received, is it even possible?
     sleep 0.2
   end
 
@@ -38,19 +37,19 @@ shared_context "tmuxomatic setup", :a => :b do
   def invoke_fingers
     send_keys(prefix)
     send_keys(fingers_key)
-    # TODO detect when fingers is ready
+    # TODO: detect when fingers is ready
     sleep 0.5
   end
 
   def echo_yanked
     exec('clear')
-    send_keys("echo yanked text is ")
+    send_keys('echo yanked text is ')
     paste
   end
 
   def paste
     send_keys(prefix)
-    send_keys("]")
+    send_keys(']')
     sleep 0.5
   end
 
@@ -69,9 +68,9 @@ shared_context "tmuxomatic setup", :a => :b do
 
   def fingers_stubs_path
     File.expand_path(File.join(
-      fingers_root,
-      './test/stubs'
-    ))
+                       fingers_root,
+                       './test/stubs'
+                     ))
   end
 
   def within_lock(lock)
@@ -95,12 +94,12 @@ shared_context "tmuxomatic setup", :a => :b do
     tmuxomatic.set_global_option('status', 'off')
     tmuxomatic.resize_window(tmuxomatic_window_id, 80, 24)
 
-    # TODO find out how to wait until tmux is ready
+    # TODO: find out how to wait until tmux is ready
     sleep 1.0
 
     exec("export PROMPT_COMMAND='#{tmuxomatic_unlock_path}'", with_lock: false)
     exec("export PS1='# '", with_lock: false)
-    exec("clear", with_lock: false)
+    exec('clear', with_lock: false)
   end
 
   after do

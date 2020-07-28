@@ -4,7 +4,7 @@ class InputSocket
   def on_input
     remove_socket_file
 
-    while true
+    loop do
       socket = server.accept
       yield socket.readline
     end

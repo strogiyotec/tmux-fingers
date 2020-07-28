@@ -7,7 +7,7 @@ class ::Fingers::Hinter
     state:,
     patterns: Fingers.config.patterns,
     alphabet: Fingers.config.alphabet,
-    output: $stdout,
+    output:,
     formatter_builder: DEFAULT_FORMATTER_BUILDER
   )
     @input = input
@@ -24,7 +24,7 @@ class ::Fingers::Hinter
     set_formatter!
 
     lines[0..-2].each { |line| process_line(line, "\n") }
-    process_line(lines[-1], "")
+    process_line(lines[-1], '')
 
     STDOUT.flush
 
@@ -58,12 +58,12 @@ class ::Fingers::Hinter
   end
 
   def process_line(line, ending)
-    result = line.gsub(pattern) { |m| replace($~) }
+    result = line.gsub(pattern) { |_m| replace($~) }
     output.print(result + ending)
   end
 
   def pattern
-    @pattern ||= Regexp.compile("(#{patterns.join("|")})")
+    @pattern ||= Regexp.compile("(#{patterns.join('|')})")
   end
 
   def hints
@@ -77,9 +77,9 @@ class ::Fingers::Hinter
 
     return text if hints.empty?
 
-    captured_text = match && match.named_captures["capture"] || text
+    captured_text = match && match.named_captures['capture'] || text
 
-    if match.named_captures["capture"]
+    if match.named_captures['capture']
       match_start, match_end = match.offset(0)
       capture_start, capture_end = match.offset(:capture)
 
@@ -95,10 +95,8 @@ class ::Fingers::Hinter
       hints_by_text[captured_text] = hint
     end
 
-
-
-    # TODO this should be output hint without ansi escape sequences
-    return formatter.format(
+    # TODO: this should be output hint without ansi escape sequences
+    formatter.format(
       hint: hint,
       highlight: text,
       selected: state.selected_hints.include?(hint),
@@ -115,11 +113,11 @@ class ::Fingers::Hinter
 
     count = 0
 
-    lines.each { |line| count = count + line.scan(pattern).length }
+    lines.each { |line| count += line.scan(pattern).length }
 
-    # TODO are we taking into account duplicates here?
+    # TODO: are we taking into account duplicates here?
     @n_matches = count
 
-    return count
+    count
   end
 end

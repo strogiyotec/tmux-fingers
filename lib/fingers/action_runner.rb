@@ -7,7 +7,6 @@ class Fingers::ActionRunner
 
   def run
     Tmux.instance.set_buffer(match)
-    Fingers.logger.debug("final_shell_command #{final_shell_command}")
 
     return unless final_shell_command
 
@@ -34,20 +33,22 @@ class Fingers::ActionRunner
 
   def copy
     return unless system_copy_command
-    %{printf "#{match.shellescape}" | #{system_copy_command}}
+
+    %(printf "#{match.shellescape}" | #{system_copy_command})
   end
 
   def open
     return unless system_open_command
-    %{printf "#{match.shellescape}" | #{system_open_command}}
+
+    %(printf "#{match.shellescape}" | #{system_open_command})
   end
 
   def paste
-    "tmux paste-buffer"
+    'tmux paste-buffer'
   end
 
   def shell_action
-    "printf \"#{match}\" | MODIFIER=#{modifier} HINT=#{hint} #{action}"
+    %(printf "#{match.shellescape}" | MODIFIER=#{modifier} HINT=#{hint} #{action})
   end
 
   def action
@@ -55,30 +56,30 @@ class Fingers::ActionRunner
   end
 
   def system_copy_command
-    @system_copy_command ||= if program_exists?("pbcopy")
-                                if program_exists?("reattach-to-user-namespace")
-                                  "reattach-to-user-namespace"
-                                else
-                                  "pbcopy"
-                                end
-                             elsif program_exists?("clip.exe")
-                               "cat | clip.exe"
-                             elsif program_exists?("wl-copy")
-                               "wl-copy"
-                             elsif program_exists?("xclip")
-                               "xclip -selection clipboard"
-                             elsif program_exists?("putclip")
-                               "putclip"
+    @system_copy_command ||= if program_exists?('pbcopy')
+                               if program_exists?('reattach-to-user-namespace')
+                                 'reattach-to-user-namespace'
+                               else
+                                 'pbcopy'
+                               end
+                             elsif program_exists?('clip.exe')
+                               'cat | clip.exe'
+                             elsif program_exists?('wl-copy')
+                               'wl-copy'
+                             elsif program_exists?('xclip')
+                               'xclip -selection clipboard'
+                             elsif program_exists?('putclip')
+                               'putclip'
                              end
   end
 
   def system_open_command
-    @system_open_command ||= if program_exists?("cygstart")
-                                "xargs cygstart"
-                             elsif program_exists?("xdg-open")
-                               "xargs xdg-open"
-                             elsif program_exists?("open")
-                               "open"
+    @system_open_command ||= if program_exists?('cygstart')
+                               'xargs cygstart'
+                             elsif program_exists?('xdg-open')
+                               'xargs xdg-open'
+                             elsif program_exists?('open')
+                               'open'
                              end
   end
 

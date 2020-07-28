@@ -10,14 +10,14 @@ class Tmux
     return @panes if @panes
 
     format = build_json_format(%w[
-        pane_id
-        window_id
-        pane_width
-        pane_height
-        scroll_position
-        pane_in_mode
-        window_zoomed_flag
-     ])
+                                 pane_id
+                                 window_id
+                                 pane_width
+                                 pane_height
+                                 scroll_position
+                                 pane_in_mode
+                                 window_zoomed_flag
+                               ])
 
     @panes = as_json_collection(`#{tmux} list-panes -a -F '#{format}'`)
   end
@@ -26,10 +26,10 @@ class Tmux
     return @windows if @windows
 
     format = build_json_format(%w[
-      window_id
-      window_width
-      window_height
-    ])
+                                 window_id
+                                 window_width
+                                 window_height
+                               ])
 
     @windows = as_json_collection(`#{tmux} list-windows -a -F '#{format}'`)
   end
@@ -39,7 +39,7 @@ class Tmux
 
     flags.push('-f', config_file) if config_file
 
-    `#{tmux} #{flags.join(' ')} new-session -d -s #{name} -x #{width} -y #{height} '#{cmd}'`
+    `env -i #{tmux} #{flags.join(' ')} new-session -d -s #{name} -x #{width} -y #{height} '#{cmd}' &>> /tmp/wtf.log`
   end
 
   def start_server
@@ -47,21 +47,20 @@ class Tmux
 
     flags.push('-f', config_file) if config_file
 
-    `#{tmux} #{flags.join(' ')} start-server`
+    `#{tmux} #{flags.join(' ')} start-server &`
   end
 
-
   def pane_by_id(id)
-    panes.find { |pane| pane["pane_id"] == id }
+    panes.find { |pane| pane['pane_id'] == id }
   end
 
   def window_by_id(id)
-    windows.find { |window| window["window_id"] == id }
+    windows.find { |window| window['window_id'] == id }
   end
 
   def pane_exec(pane_id, cmd)
     send_keys(pane_id, " #{cmd}")
-    send_keys(pane_id, "Enter")
+    send_keys(pane_id, 'Enter')
   end
 
   def send_keys(pane_id, keys)
@@ -71,38 +70,44 @@ class Tmux
   def capture_pane(pane_id)
     pane = pane_by_id(pane_id)
 
-
-    if pane["pane_in_mode"] == '1'
-      start_line = -pane["scroll_position"].to_i
-      end_line = pane["pane_height"].to_i - pane["scroll_position"].to_i - 1
+    if pane['pane_in_mode'] == '1'
+      start_line = -pane['scroll_position'].to_i
+      end_line = pane['pane_height'].to_i - pane['scroll_position'].to_i - 1
 
       `#{tmux} capture-pane -J -p -t '#{pane_id}' -S #{start_line} -E #{end_line}`
     else
       `#{tmux} capture-pane -J -p -t '#{pane_id}'`
     end
-
   end
 
-  def create_window(name, cmd, pane_width, pane_height)
-    format = build_json_format(%w[window_id pane_id])
+  def create_window(name, cmd, _pane_width, _pane_height)
+    format = build_json_format(%w[window_id pane_id pane_tty])
 
     output = JSON.parse(
       `#{tmux} new-window -P -d -n "#{name}" -F '#{format}' "#{cmd}"`
     )
 
-    return [output["window_id"], output["pane_id"]]
+    [output['window_id'], output['pane_id'], output['pane_tty']]
   end
 
   def swap_panes(src_id, dst_id)
     `#{tmux} swap-pane -d -Z -s '#{src_id}' -t '#{dst_id}'`
   end
 
-  # TODO this command is version dependant D:
+  def kill_pane(id)
+    `#{tmux} kill-pane -t #{id}`
+  end
+
+  def kill_window(id)
+    `#{tmux} kill-window -t #{id}`
+  end
+
+  # TODO: this command is version dependant D:
   def resize_window(window_id, width, height)
     `#{tmux} resize-window -t "#{window_id}" -x #{width} -y #{height}`
   end
 
-  # TODO this command is version dependant D:
+  # TODO: this command is version dependant D:
   def resize_pane(window_id, width, height)
     `#{tmux} resize-pane -t "#{window_id}" -x #{width} -y #{height}"`
   end
@@ -135,6 +140,7 @@ class Tmux
 
   def set_buffer(value)
     return unless value
+
     `#{tmux} set-buffer "#{value.shellescape}"`
   end
 
@@ -147,7 +153,6 @@ class Tmux
   end
 
   def parse_format(format)
-
     `#{File.dirname(__FILE__)}/../vendor/tmux-printer/tmux-printer '#{format}'`.chomp
   end
 
@@ -161,15 +166,16 @@ class Tmux
     flags.push('-L', socket) if socket
 
     return "tmux #{flags.join(' ')}" unless flags.empty?
-    "tmux"
+
+    'tmux'
   end
 
   def build_json_format(fields)
-    "{#{fields.map { |field| '"%s": "#{%s}"' % [field, field] }.join(", ")}}"
+    "{#{fields.map { |field| format('"%s": "#{%s}"', field, field) }.join(', ')}}"
   end
 
   def as_json_collection(output)
     lines = output.gsub(/\n$/, '').split("\n")
-    JSON.parse("[#{lines.join(",")}]")
+    JSON.parse("[#{lines.join(',')}]")
   end
 end

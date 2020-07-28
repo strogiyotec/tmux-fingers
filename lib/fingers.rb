@@ -1,14 +1,24 @@
+# frozen_string_literal: true
+
 require 'logger'
 require 'json'
 require 'singleton'
 require 'socket'
 
+# Top level fingers namespace
 module Fingers
 end
 
+# Monkey patching string to add shellscape method, maybe remove.
 class String
   def shellescape
-    self.gsub('"', '\\"')
+    gsub('"', '\\"')
+  end
+end
+
+class Time
+  def to_ms
+    (to_f * 1000.0).to_i
   end
 end
 
@@ -20,6 +30,8 @@ require 'fingers/dirs'
 require 'fingers/config'
 require 'fingers/commands'
 require 'fingers/commands/base'
+
+# dynamically require command?
 require 'fingers/commands/load_config'
 require 'fingers/commands/send_input'
 require 'fingers/commands/setup_fingers_mode_bindings'

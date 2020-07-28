@@ -6,23 +6,23 @@ class Huffman
     end
 
     def >(other)
-      self.weight > other.weight
+      weight > other.weight
     end
 
     def <(other)
-      self.weight < other.weight
+      weight < other.weight
     end
 
     def >=(other)
-      self.weight >= other.weight
+      weight >= other.weight
     end
 
     def <=(other)
-      self.weight <= other.weight
+      weight <= other.weight
     end
 
     def <=>(other)
-      self.weight <=> other.weight
+      weight <=> other.weight
     end
 
     attr_reader :children, :weight
@@ -35,13 +35,11 @@ class Huffman
   end
 
   def generate_hints
-    if n <= alphabet.length
-      return alphabet
-    end
+    return alphabet if n <= alphabet.length
 
     first_node = true
 
-    while heap.length > 1 do
+    while heap.length > 1
       if first_node
         n_branches = initial_number_of_branches
         first_node = false
@@ -58,9 +56,7 @@ class Huffman
     result = []
 
     traverse_tree(heap.elements[1]) do |node, path|
-      if node.children.length == 0
-        result.push(translate_path(path))
-      end
+      result.push(translate_path(path)) if node.children.length == 0
     end
 
     result.sort { |a, b| a.length <=> b.length }
@@ -87,7 +83,6 @@ class Huffman
   end
 
   def arity
-    Fingers.logger.debug("alphabet #{alphabet}")
     @arity ||= alphabet.length
   end
 

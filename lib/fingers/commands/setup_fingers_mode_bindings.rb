@@ -1,5 +1,5 @@
 class Fingers::Command::SetupFingersModeBindings < Fingers::Command::Base
-  DISALLOWED_CHARS = /cimq/
+  DISALLOWED_CHARS = /cimq/.freeze
 
   def run
     ('a'..'z').to_a.each do |char|
@@ -11,17 +11,17 @@ class Fingers::Command::SetupFingersModeBindings < Fingers::Command::Base
       fingers_bind("M-#{char}", "hint:#{char}:alt")
     end
 
-    fingers_bind("C-c", "exit")
-    fingers_bind("q", "exit")
-    fingers_bind("Escape", "exit")
+    fingers_bind('C-c', 'exit')
+    fingers_bind('q', 'exit')
+    fingers_bind('Escape', 'exit')
 
-    fingers_bind("?", "toggle-help")
-    fingers_bind("Space", "toggle_compact_mode")
+    fingers_bind('?', 'toggle-help')
+    fingers_bind('Space', 'toggle_compact_mode')
 
-    fingers_bind("Enter", "noop")
-    fingers_bind("Tab", "toggle_multi_mode")
+    fingers_bind('Enter', 'noop')
+    fingers_bind('Tab', 'toggle_multi_mode')
 
-    fingers_bind("Any", "noop")
+    fingers_bind('Any', 'noop')
   end
 
   private
