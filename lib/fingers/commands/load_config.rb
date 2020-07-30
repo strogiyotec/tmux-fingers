@@ -108,6 +108,6 @@ class Fingers::Command::LoadConfig < Fingers::Command::Base
   end
 
   def ensure_cache_folder
-    Dir.mkdir(Fingers::Dirs::CACHE_PATH) unless File.exist?(Fingers::Dirs::CACHE)
+    Dir.mkdir(Fingers::Dirs::CACHE) unless File.exist?(Fingers::Dirs::CACHE)
   end
 end
